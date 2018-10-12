@@ -1,4 +1,4 @@
-# SliceLID
+# SliceLID (Under Development)
 LSTM Log-Likelihood Based Classifier
 
 # Motivation
