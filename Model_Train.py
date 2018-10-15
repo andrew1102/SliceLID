@@ -1,25 +1,15 @@
-from __future__ import print_function
-import matplotlib
-matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import uproot as up
 import numpy as np
-import sys
-import tensorflow as tf;
 import os.path
-import keras.backend as K
 import time
 from keras.models import load_model
-from keras.models import Sequential
 from keras import optimizers
 from keras.models import Model
-from keras.layers import Dense,Dropout,Activation,TimeDistributed
-from keras.layers import LSTM,Input,BatchNormalization,concatenate
-from keras.utils import plot_model
-from keras.callbacks import EarlyStopping,ReduceLROnPlateau
-from keras.regularizers import l2
+from keras.layers import Dense
+from keras.layers import LSTM,Input,concatenate
+from keras.callbacks import EarlyStopping
 from sklearn.utils import shuffle
-from sklearn import metrics
 np.seterr(all='ignore')
 
 out_png0 = 'FHC_LSTM_Loss0.png'
@@ -45,7 +35,7 @@ def DataHandle(idx,swap,horn,limit,nepoch,frac):
     CCNC = []
     #We are dealing with many files. Reading everything at once will cause the memory
     #to exceed that of the quota. Therefore, iterate over subsamples of the files.
-    for arrays in up.iterate(path='root_files/'+horn+'/fardet*'+swap+'*.root',\
+    for arrays in up.iterate(path='ROOT_Files/'+horn+'/fardet*'+swap+'*.root',\
                              treepath="eventtrain/fSlice",branches=mainlist,\
                              entrysteps=nslc):
         SlcE = arrays[b'SliceEnergy'] #Calorimetric energy of all hits in the slice
@@ -118,13 +108,13 @@ model1 = Model(inputs=[Shw,SlcE],outputs=final) #0.25 <= pngE/slcE < 0.5
 model2 = Model(inputs=[Shw,SlcE],outputs=final) #0.5 <= pngE/slcE < 0.75
 model3 = Model(inputs=[Shw,SlcE],outputs=final) #0.75 <= pngE/slcE
 
-if os.path.exists("save/FHC_LSTM_Model0.h5"):
+if os.path.exists("Models/FHC_LSTM_Model0.h5"):
     model0 = load_model("save/FHC_LSTM_Model0.h5")
-if os.path.exists("save/FHC_LSTM_Model1.h5"):
-    model1 = load_model("save/FHC_LSTM_Model1.h5")
-if os.path.exists("save/FHC_LSTM_Model2.h5"):
-    model2 = load_model("save/FHC_LSTM_Model2.h5")
-if os.path.exists("save/FHC_LSTM_Model3.h5"):
+if os.path.exists("Models/FHC_LSTM_Model1.h5"):
+    model1 = load_model("Models/FHC_LSTM_Model1.h5")
+if os.path.exists("Models/FHC_LSTM_Model2.h5"):
+    model2 = load_model("Models/FHC_LSTM_Model2.h5")
+if os.path.exists("Models/FHC_LSTM_Model3.h5"):
     model3 = load_model("save/FHC_LSTM_Model3.h5")
 
 nepoch = 100
@@ -250,9 +240,3 @@ for i in range(0,nepoch):
     plt.plot(np.asarray(train_loss3),label='Train')
     plt.plot(np.asarray(val_loss3),label='Cross-Validation')
     plt.savefig(out_png3)  
-   
-    #Oh no! It looks like I accidentally deleted the rest of the code.
-    #The remaining piece of code manually decreased the learning rate for a particular model,
-    #and provided control over when to stop training a particular model, based on the change of
-    #average validation loss.
-    if i>0: lr = 0.005/i
